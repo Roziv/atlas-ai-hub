@@ -226,7 +226,7 @@ export default function AgentBuilderPage() {
           {/* Right Panel: Chat Preview */}
           <div style={{ display: 'flex', flexDirection: 'column', background: t.surface, borderRadius: 20, border: `1px solid ${t.border}`, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: `1px solid ${t.border}`, background: t.surfaceAlt, display: 'flex', alignItems: 'center', gap: 12 }}>
-               <Avatar src="" name={agentName} size={32} />
+               <Avatar name={agentName} size={32} />
                <div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{agentName}</div>
                   <div style={{ fontSize: 11, color: t.successText }}>• Live Preview</div>
