@@ -6,10 +6,13 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
   // Use relative URL for Next.js proxying (/api/...)
   const url = endpoint;
   
-  const headers: Record<string, string> = {
+  const headers: Record<string, any> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
+
+  if (options.headers) {
+    Object.assign(headers, options.headers);
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
