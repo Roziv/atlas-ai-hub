@@ -149,7 +149,7 @@ export default function UserManagementPage() {
               alignItems: 'center', fontSize: 13, color: t.text,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Avatar src={user.avatar} name={user.name} size={32} />
+                <Avatar name={user.name} size={32} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
                   <div style={{ fontSize: 11, color: t.textFaint, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
