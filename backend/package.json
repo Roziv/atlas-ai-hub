@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "build": "echo 'Build step - using npx ts-node'",
-    "start": "npx ts-node src/index.ts",
-    "seed": "npx ts-node prisma/seed.ts",
+    "build": "echo 'Build step - compiling TypeScript'",
+    "start": "node -r ts-node/register src/index.ts",
+    "seed": "node -r ts-node/register prisma/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
