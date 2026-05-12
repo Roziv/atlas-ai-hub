@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas AI Hub - PM Case Study</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a4d7a;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #F26D5B;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #E85A47;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #16213E;
+            border: 2px solid #16213E;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f7ff;
+        }
+
+        /* Page Navigation */
+        .page-nav {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 500;
+        }
+
+        .page-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-dot.active {
+            background: #16213E;
+            transform: scale(1.5);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #16213E 0%, #2a3a52 100%);
+            color: white;
+            padding: 6rem 2rem;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            text-align: center;
+        }
+
+        .hero-logo {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-logo img {
+            width: 100%;
+            height: auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero h1 em {
+            color: #F26D5B;
+            font-style: normal;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        /* Section */
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: #16213E;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #F26D5B;
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            font-size: 1.75rem;
+            color: #16213E;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card-grid .card:nth-child(4) {
+            grid-column: 1 / -1;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #F26D5B;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #16213E;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Features List */
+        .features-list {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: #F26D5B;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .feature-content h4 {
+            color: #16213E;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-content p {
+            color: #666;
+            margin: 0;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .stat {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 4px solid #F26D5B;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            color: #16213E;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Journey Map */
+        .journey-map {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .journey-steps {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .journey-step {
+            flex: 1;
+            min-width: 200px;
+            padding: 1.5rem;
+            background: #F4F6FA;
+            border-radius: 8px;
+            border-left: 4px solid #5A6479;
+        }
+
+        .journey-step.pain {
+            border-left-color: #F26D5B;
+        }
+
+        .journey-step.solution {
+            background: #E8F5F0;
+            border-left-color: #5A6479;
+        }
+
+        .journey-step h4 {
+            margin-bottom: 0.5rem;
+            color: #16213E;
+        }
+
+        .journey-step p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Built for Every Role */
+        .roles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .role {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .role:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .role-icon {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #16213E 0%, #2a3a52 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .role.cfo .role-icon {
+            background: linear-gradient(135deg, #16213E 0%, #2a3a52 100%);
+        }
+
+        .role.manager .role-icon {
+            background: linear-gradient(135deg, #5A6479 0%, #3a4452 100%);
+        }
+
+        .role.user .role-icon {
+            background: linear-gradient(135deg, #F26D5B 0%, #E85A47 100%);
+        }
+
+        .role-content {
+            padding: 2rem;
+        }
+
+        .role h3 {
+            margin-top: 0;
+            color: #16213E;
+        }
+
+        .role ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .role li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #666;
+        }
+
+        .role li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* Roadmap */
+        .roadmap {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .roadmap-phases {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .phase {
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #0d8fa3;
+            background: #f8f9fa;
+        }
+
+        .phase h4 {
+            color: #1a4d7a;
+            margin-bottom: 0.5rem;
+        }
+
+        .phase.phase-1 {
+            border-left-color: #F26D5B;
+        }
+
+        .phase.phase-2 {
+            border-left-color: #5A6479;
+        }
+
+        .phase.phase-3 {
+            border-left-color: #5A6479;
+        }
+
+        /* Footer */
+        .footer {
+            background: #16213E;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 0.5rem 0;
+            opacity: 0.9;
+        }
+
+        /* Competitive Map */
+        .competitive-map {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            min-height: 500px;
+            position: relative;
+            border: 2px solid #ddd;
+        }
+
+        .competitor {
+            position: absolute;
+            width: 120px;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .competitor.you {
+            border-color: #F26D5B;
+            background: #FEF5F2;
+            font-weight: 700;
+            color: #F26D5B;
+        }
+
+        .axis-label {
+            position: absolute;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            padding: 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #16213E;
+            border-bottom-color: #16213E;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.75rem;
+            }
+
+            .page-nav {
+                display: none;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .journey-steps {
+                flex-direction: column;
+            }
+
+            .journey-step {
+                width: 100%;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .nav, .page-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-logo">
+            <img src="logo.png" alt="Atlas AI Hub Logo" />
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="previousPage()">← Previous</button>
+            <button class="btn btn-primary" onclick="nextPage()">Next →</button>
+        </div>
+    </div>
+
+    <!-- Page Navigation Dots -->
+    <div class="page-nav">
+        <div class="page-dot active" onclick="goToPage(0)"></div>
+        <div class="page-dot" onclick="goToPage(1)"></div>
+    </div>
+
+    <!-- Page 1: Main Presentation -->
+    <div id="page-0" class="page active">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <img src="logo.png" alt="Atlas AI Hub Logo" />
+                </div>
+                <h1>Control Your AI <em>Enterprise</em></h1>
+                <p>Unified governance, cost control, and adoption tracking for AI Managers, CFOs, and Employees.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <!-- Built for Every Role -->
+            <section>
+                <h2>Built for Every Role</h2>
+                <div class="roles">
+                    <div class="role manager">
+                        <div class="role-icon">🛡️</div>
+                        <div class="role-content">
+                            <h3>AI Manager</h3>
+                            <p>Govern AI models, enforce policies, and manage access without spreadsheets.</p>
+                            <ul>
+                                <li>Model registry & approvals</li>
+                                <li>Policy enforcement</li>
+                                <li>RAG distribution</li>
+                                <li>Adoption tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="role cfo">
+                        <div class="role-icon">💰</div>
+                        <div class="role-content">
+                            <h3>CFO</h3>
+                            <p>See all AI spend in one view with real-time ROI and forecasting.</p>
+                            <ul>
+                                <li>Complete spend visibility</li>
+                                <li>Model ROI analytics</li>
+                                <li>Budget forecasting</li>
+                                <li>Optimization opportunities</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="role user">
+                        <div class="role-icon">⚡</div>
+                        <div class="role-content">
+                            <h3>Employee</h3>
+                            <p>Build AI agents in 10 minutes with cost visibility and safe sharing.</p>
+                            <ul>
+                                <li>No-code agent builder</li>
+                                <li>Cost per run visible</li>
+                                <li>Company-wide sharing</li>
+                                <li>Policy applied auto</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Market Research Section -->
+            <section>
+                <h2>Market Opportunity</h2>
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                    Atlas sits at the intersection of three fragmented $850M-$1.1B markets, each growing at 40%+ CAGR.
+                    Regulatory pressure and uncontrolled AI spend are forcing enterprises to invest in governance and cost management.
+                </p>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number">$850M-<br/>$1.1B</div>
+                        <div class="stat-label">Total Addressable Market</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">40%+</div>
+                        <div class="stat-label">CAGR Growth</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Underserved Markets</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Integrated Competitors</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Research & Problem Identity -->
+            <section>
+                <h2>User Research: Problem Identity</h2>
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                    Through customer interviews, we validated critical pain points across three personas:
+                </p>
+
+                <div class="journey-map">
+                    <h3>Current State: The Problems</h3>
+
+                    <!-- AI Manager Problems -->
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #1a4d7a;">🛡️ AI Manager's Nightmare</h4>
+                    <div class="journey-steps">
+                        <div class="journey-step pain">
+                            <h4>Model Sprawl</h4>
+                            <p>47 models deployed, nobody knows the full list. 12 deleted models still running in production.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: 3-4 hrs/week manual audit + compliance risk</p>
+                        </div>
+                        <div class="journey-step pain">
+                            <h4>Policy Enforcement</h4>
+                            <p>Policies only exist as Slack memos. New models send customer PII to external APIs.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: No enforcement, no audit trail, security gaps</p>
+                        </div>
+                        <div class="journey-step pain">
+                            <h4>RAG Distribution</h4>
+                            <p>23 knowledge bases shared manually via email/Slack. No access controls, no expiration.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: 16-30 hrs/month wasted, compliance gaps</p>
+                        </div>
+                    </div>
+
+                    <!-- CFO Problems -->
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #1a4d7a;">💰 CFO's Nightmare</h4>
+                    <div class="journey-steps">
+                        <div class="journey-step pain">
+                            <h4>Spend Blindness</h4>
+                            <p>ChatGPT subscriptions ($200/month), API spend ($5K/month), SaaS tools ($20K/month) = $35K+/month, no visibility.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: 15-20 hrs/month compiling numbers + credibility loss</p>
+                        </div>
+                        <div class="journey-step pain">
+                            <h4>No ROI Measurement</h4>
+                            <p>Spent $300K on embedding model. No idea if it's saving money or who's using it.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: Board doesn't trust AI investments, can't justify budgets</p>
+                        </div>
+                        <div class="journey-step pain">
+                            <h4>Budget Chaos</h4>
+                            <p>Q1 budget: $800K. Actual spend: $1.24M (+55%). No early warning, no control.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: Forecasting ±50% accuracy, board loses confidence</p>
+                        </div>
+                    </div>
+
+                    <!-- Employee Problems -->
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #1a4d7a;">⚡ Employee's Dilemma</h4>
+                    <div class="journey-steps">
+                        <div class="journey-step pain">
+                            <h4>Build vs. Copy</h4>
+                            <p>Option A: Spend 2 weeks learning APIs (too slow). Option B: Use ChatGPT (no sharing, no governance). Option C: Email prompts to colleagues (friction).</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: Slow feature delivery, duplicated work</p>
+                        </div>
+                        <div class="journey-step pain">
+                            <h4>Cost Ignorance</h4>
+                            <p>Build a bot that makes 1000 API calls/day without knowing it costs $100/month.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: Surprise bills, wasted budget</p>
+                        </div>
+                        <div class="journey-step pain">
+                            <h4>No Discovery</h4>
+                            <p>Don't know if colleagues already built the tool you need. Rebuild, duplicate, waste.</p>
+                            <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">🔴 Impact: 10% of work is avoidable duplication</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product Vision & Value Proposition -->
+            <section>
+                <h2>Product Vision & Value Proposition</h2>
+
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                    <strong>Vision:</strong> The unified platform that serves all three personas better than specialists.
+                </p>
+
+                <div class="journey-map">
+                    <h3>How We Solve Each Problem</h3>
+
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #10b981;">✓ AI Manager: "Governance I Can Actually Use"</h4>
+                    <div class="journey-steps">
+                        <div class="journey-step solution">
+                            <h4>Model Registry</h4>
+                            <p><strong>Solution:</strong> Real-time model inventory with status, ownership, cost. One dashboard, zero spreadsheets.</p>
+                            <p><strong>Impact:</strong> Go from 4 hrs/week to 15 min/week. 100% visibility.</p>
+                        </div>
+                        <div class="journey-step solution">
+                            <h4>Policy Automation</h4>
+                            <p><strong>Solution:</strong> Create policies in plain English. System auto-detects violations and blocks deployments.</p>
+                            <p><strong>Impact:</strong> 95%+ policy compliance. Enforcement, not hope.</p>
+                        </div>
+                        <div class="journey-step solution">
+                            <h4>RAG Management</h4>
+                            <p><strong>Solution:</strong> One-click access grants with expiration. Auto-audit trail.</p>
+                            <p><strong>Impact:</strong> Go from 45 min per request to 2 minutes. Zero compliance gaps.</p>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #10b981;">✓ CFO: "Complete Spend Visibility"</h4>
+                    <div class="journey-steps">
+                        <div class="journey-step solution">
+                            <h4>Unified Dashboard</h4>
+                            <p><strong>Solution:</strong> All AI spend (cloud, API, SaaS) in one real-time view. By team, model, provider.</p>
+                            <p><strong>Impact:</strong> Go from 20 hours/month to 30 minutes. 100% visibility vs. 30% today.</p>
+                        </div>
+                        <div class="journey-step solution">
+                            <h4>Model ROI Analytics</h4>
+                            <p><strong>Solution:</strong> Cost per model, adoption rates, cost savings vs. alternatives.</p>
+                            <p><strong>Impact:</strong> Data-backed investment decisions. Board confidence increases.</p>
+                        </div>
+                        <div class="journey-step solution">
+                            <h4>Forecasting</h4>
+                            <p><strong>Solution:</strong> Trend-based spending forecasts + optimization impact modeling.</p>
+                            <p><strong>Impact:</strong> Go from ±50% accuracy to ±10%. Predictable budgeting.</p>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #10b981;">✓ Employee: "Build Fast, But Know the Cost"</h4>
+                    <div class="journey-steps">
+                        <div class="journey-step solution">
+                            <h4>No-Code Builder</h4>
+                            <p><strong>Solution:</strong> Drag-and-drop agent builder. No coding required. 10 min to first agent.</p>
+                            <p><strong>Impact:</strong> Fast prototyping. Empowers non-technical users.</p>
+                        </div>
+                        <div class="journey-step solution">
+                            <h4>Cost Transparency</h4>
+                            <p><strong>Solution:</strong> "This agent costs $0.002/run (Claude) or $0.05/run (GPT-4)." Visible at build time.</p>
+                            <p><strong>Impact:</strong> Teams optimize cost from the start. No surprise bills.</p>
+                        </div>
+                        <div class="journey-step solution">
+                            <h4>Discovery & Sharing</h4>
+                            <p><strong>Solution:</strong> Internal agent marketplace. Find what colleagues built. Clone and customize.</p>
+                            <p><strong>Impact:</strong> Reduce 10% of avoidable duplication. Faster feature delivery.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Competitive Analysis -->
+            <section>
+                <h2>Competitive Positioning</h2>
+
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 1.5rem;">
+                    Atlas competes against four major categories of competitors. Our advantage: we're the only solution that is simultaneously simple, governed, and cost-transparent.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Competitor</th>
+                            <th>Their Strength</th>
+                            <th>Their Gap</th>
+                            <th>Our Advantage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mavvrik</strong> (Governance)</td>
+                            <td>Enterprise-grade, comprehensive</td>
+                            <td>Complex UI (YAML), $50K setup, 3-week onboarding</td>
+                            <td>Ease of use + cost transparency + 3-day setup</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Holori</strong> (Cost)</td>
+                            <td>Deep cloud billing integration</td>
+                            <td>Cloud-only, no SaaS/API spend, no governance</td>
+                            <td>Multi-cloud + governance + predictable pricing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MindStudio</strong> (Builder)</td>
+                            <td>Fastest to first agent (15 min)</td>
+                            <td>No cost tracking, no governance, no sharing controls</td>
+                            <td>Cost transparency + safe sharing + governance applied auto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Google Cloud</strong> (Infrastructure)</td>
+                            <td>Deep GCP integration, bundled pricing</td>
+                            <td>GCP-only, not model-agnostic, no business-level governance</td>
+                            <td>Multi-cloud + vendor-agnostic + 20-50% cost savings</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: 2rem;">Core Differentiator: Cost Transparency at Build Time</h3>
+                <div class="features-list">
+                    <p style="color: #666; margin-bottom: 1rem;">
+                        When an end-user builds an agent in our platform, they see cost <em>before</em> publishing:
+                    </p>
+                    <div class="feature-item">
+                        <div class="feature-icon">1</div>
+                        <div class="feature-content">
+                            <h4>"This agent will cost ~$0.002/run (Claude 3.5 Sonnet) or $0.05/run (GPT-4)"</h4>
+                            <p>Options shown, cheaper alternatives prominently displayed.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">2</div>
+                        <div class="feature-content">
+                            <h4>Teams optimize cost from the start, not in retrospective reporting</h4>
+                            <p>30-50% lower spend without governance being restrictive.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">3</div>
+                        <div class="feature-content">
+                            <h4>Not possible in MindStudio (no cost tracking) or Mavvrik (too complex for end-users)</h4>
+                            <p>We own this space.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Core Functionality -->
+            <section>
+                <h2>Core Functionality (MVP)</h2>
+
+                <h3>For AI Manager (Model Registry + Governance)</h3>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Model Registry & Approvals</h4>
+                            <p>Add OpenAI, Anthropic, Google, Azure models. Mark as approved/experimental/deprecated with version tracking.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Policy Engine</h4>
+                            <p>Route requests by role ("engineers can use GPT-4, analysts use Claude"). Enforce by data type. Set budget caps per team/project.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Cost Tracking Dashboard</h4>
+                            <p>Spend by model, department, project. Usage trends (tokens, requests, cost per metric). Cost per department for chargeback.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Audit Trail</h4>
+                            <p>Who used which model, when, on what. Data lineage. Compliance-ready exports.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>RAG Management</h4>
+                            <p>Distribute proprietary knowledge safely. Access control by role/user. Version control. Expiration management.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">For CFO (Finance Dashboard)</h3>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Executive Dashboard</h4>
+                            <p>Total AI spend vs. budget. Spend by department with forecasting. Cost trends (month-over-month, year-over-year).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Model ROI Analytics</h4>
+                            <p>Cost per team, project, or use case. Tie to business metrics if possible.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Spend Forecasting</h4>
+                            <p>Month-ahead forecast. Quarterly budget recommendation. Variance analysis.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">For Employee (Agent Builder)</h3>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>No-Code Agent Builder</h4>
+                            <p>Drag-and-drop workflow builder. Pre-approved models only. Cost per run displayed at build time.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Sharing & Governance</h4>
+                            <p>Share with team, company, or public. Governance applied automatically based on company policy.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-content">
+                            <h4>Agent Marketplace</h4>
+                            <p>Discover what colleagues built. Clone and customize. Usage metrics (times cloned, ratings).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Journeys -->
+            <section>
+                <h2>User Journeys: From Pain to Empowerment</h2>
+
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab(event, 'journey-ai-manager')">AI Manager</button>
+                    <button class="tab-button" onclick="switchTab(event, 'journey-cfo')">CFO</button>
+                    <button class="tab-button" onclick="switchTab(event, 'journey-employee')">Employee</button>
+                </div>
+
+                <div id="journey-ai-manager" class="tab-content active">
+                    <h3>AI Manager: From Chaos to Control</h3>
+                    <div class="journey-map">
+                        <h4>Current State (Months 1-3): Frustration → Resignation</h4>
+                        <p style="color: #666; margin-bottom: 1rem;">Monday: Realize model inventory is out of sync. Email team for status (wait 2-3 days). Find 2 undocumented models in production. Policy enforcement is "best effort." RAG requests pile up (45 min each).</p>
+
+                        <h4 style="margin-top: 2rem;">Desired State (With Platform): Month 1+: Confidence → Strategic</h4>
+                        <div class="journey-steps">
+                            <div class="journey-step solution">
+                                <h4>Day 1</h4>
+                                <p><strong>Real-time model inventory:</strong> 47 models, all statuses green. See last-used date, cost, team ownership. Share executive summary in 2 min vs. 4 hours.</p>
+                                <p style="margin-top: 0.5rem;"><em>😌 Confident</em></p>
+                            </div>
+                            <div class="journey-step solution">
+                                <h4>Week 1</h4>
+                                <p><strong>Add policy:</strong> "Restrict external API calls." System auto-flags violations. Fix in 30 sec vs. manual review (20 min). Policy enforcement at deployment.</p>
+                                <p style="margin-top: 0.5rem;"><em>😌 Protected</em></p>
+                            </div>
+                            <div class="journey-step solution">
+                                <h4>Week 2</h4>
+                                <p><strong>RAG request:</strong> Grant access in 2 min. Auto-expires in 30 days. Audit trail automatic. Freed 10 hours this week for strategy.</p>
+                                <p style="margin-top: 0.5rem;"><em>⚡ Empowered</em></p>
+                            </div>
+                            <div class="journey-step solution">
+                                <h4>Month 1+</h4>
+                                <p><strong>Strategic:</strong> Present data-backed case for model investment. CTO sees you as strategic partner (not firefighter). Team respects governance.</p>
+                                <p style="margin-top: 0.5rem;"><em>💪 Strategic</em></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="journey-cfo" class="tab-content">
+                    <h3>CFO: From Guessing to Data-Driven</h3>
+                    <div class="journey-map">
+                        <h4>Current State (Months 1-6): Embarrassment → Resignation</h4>
+                        <p style="color: #666; margin-bottom: 1rem;">CEO asks "How much are we spending on AI?" Honest answer: "I don't know exactly." Compile numbers from 5+ sources. Number is wrong at board review. Board loses confidence. Give up optimizing (no data).</p>
+
+                        <h4 style="margin-top: 2rem;">Desired State (With Platform): Month 1+: Clarity → Strategic</h4>
+                        <div class="journey-steps">
+                            <div class="journey-step solution">
+                                <h4>Month 1</h4>
+                                <p><strong>Real-time dashboard:</strong> "$1.24M this month" (actual). CEO impressed. Board sees transparency. Finance credibility increases immediately.</p>
+                                <p style="margin-top: 0.5rem;"><em>😌 In Control</em></p>
+                            </div>
+                            <div class="journey-step solution">
+                                <h4>Month 2-3</h4>
+                                <p><strong>ROI analysis:</strong> Model-by-model ROI backed by actual metrics. Board confidence increases. Recommend consolidation saves. Finance becomes strategic.</p>
+                                <p style="margin-top: 0.5rem;"><em>💪 Strategic Partner</em></p>
+                            </div>
+                            <div class="journey-step solution">
+                                <h4>Month 4-6</h4>
+                                <p><strong>Optimization:</strong> Identify $40-50K/month in recurring savings. Forecasts accurate (±10% vs. ±50%). AI becomes strategic priority.</p>
+                                <p style="margin-top: 0.5rem;"><em>🏆 Value Multiplier</em></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="journey-employee" class="tab-content">
+                    <h3>Employee: From "Too Hard" to "Done in 10 Minutes"</h3>
+                    <div class="journey-map">
+                        <h4>Current State: Option A (Too Slow) vs. B (No Sharing) vs. C (Friction)</h4>
+                        <p style="color: #666; margin-bottom: 1rem;">Want to build a support chatbot. Option A: 2 weeks learning APIs (too slow). Option B: Use ChatGPT (no sharing). Option C: Email prompts to team (friction). Give up.</p>
+
+                        <h4 style="margin-top: 2rem;">Desired State: "Build in 10 Minutes, Share with One Click"</h4>
+                        <div class="journey-steps">
+                            <div class="journey-step solution">
+                                <h4>Minute 1</h4>
+                                <p><strong>Open builder:</strong> "Build an AI Agent" interface. Drag-and-drop, no coding. See cost per run: "$0.002/run (Claude) vs. $0.05/run (GPT-4)."</p>
+                                <p style="margin-top: 0.5rem;"><em>⚡ Easy</em></p>
+                            </div>
+                            <div class="journey-step solution">
+                                <h4>Minute 8</h4>
+                                <p><strong>Build bot:</strong> Add instructions, pick data source, preview output. Chat interface. No approval needed (company policy applied auto).</p>
+                                <p style="margin-top: 0.5rem;"><em>⚡ Fast</em></p>
+                            </div>
+                            <div class="journey-step solution">
+                                <h4>Minute 10</h4>
+                                <p><strong>Share:</strong> "Share with team" button. 3 teammates have access. Costs $0.002/run for them too. They can clone and customize.</p>
+                                <p style="margin-top: 0.5rem;"><em>✓ Shipped</em></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Page 2: Advanced Topics -->
+    <div id="page-1" class="page">
+        <div class="section">
+            <section>
+                <h2>Data Privacy & Security: Built-In Solution</h2>
+
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                    One of the biggest pain points that drives customers to Atlas: <strong>data privacy</strong>.
+                    Our platform makes privacy management simple through policy-driven controls and governance.
+                </p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>The Problem</h3>
+                        <p>Teams send sensitive customer data to external APIs (OpenAI, Cohere) without controls. No way to enforce "customer data can only go to internal APIs." Compliance risk.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Our Solution</h3>
+                        <p>Policy engine classifies data sensitivity. Enforces routing: "PII goes to internal APIs only, public data ok with external." Auto-blocks violations at deployment.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Customer Benefit</h3>
+                        <p>Privacy is no longer a security review bottleneck. It's built into the platform. Teams move faster. Compliance officers sleep better.</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 3rem;">Privacy Controls in Atlas</h3>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-content">
+                            <h4>Data Classification</h4>
+                            <p>Mark data as Public, Internal, Sensitive, PII. Policies route by classification.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-content">
+                            <h4>API Allowlists</h4>
+                            <p>"Customer data can ONLY go to: internal embedding API, not OpenAI."</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-content">
+                            <h4>Automatic Enforcement</h4>
+                            <p>Model tries to violate policy → deployment blocked → team gets remediation suggestion.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-content">
+                            <h4>Audit Trail</h4>
+                            <p>Complete log: who accessed what data, when, where it went. SOC 2 ready.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Success Criteria -->
+            <section>
+                <h2>Success Criteria</h2>
+
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                    Success is measured by customer outcomes, not just feature completion. Here are the North Star metrics for each persona:
+                </p>
+
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab(event, 'metrics-ai-manager')">AI Manager</button>
+                    <button class="tab-button" onclick="switchTab(event, 'metrics-cfo')">CFO</button>
+                    <button class="tab-button" onclick="switchTab(event, 'metrics-employee')">Employee</button>
+                </div>
+
+                <div id="metrics-ai-manager" class="tab-content active">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Current State</th>
+                                <th>Target (6 months)</th>
+                                <th>How to Measure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Time to Model Inventory</strong></td>
+                                <td>4 hours/week manual</td>
+                                <td>&lt;15 min/week</td>
+                                <td>Platform dashboard audit time</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Policy Compliance</strong></td>
+                                <td>60% (best effort)</td>
+                                <td>95%+</td>
+                                <td>% of deployments passing policy check</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Violation Response Time</strong></td>
+                                <td>3-5 days average</td>
+                                <td>&lt;1 day</td>
+                                <td>Violation creation to resolution time</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RAG Request Fulfillment</strong></td>
+                                <td>45 minutes average</td>
+                                <td>5 minutes average</td>
+                                <td>Time from request to access granted</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Model Adoption Visibility</strong></td>
+                                <td>0% tracked</td>
+                                <td>100% transparent</td>
+                                <td>% of models with adoption metrics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Time Freed Up</strong></td>
+                                <td>—</td>
+                                <td>15-20 hrs/week</td>
+                                <td>Surveyed time allocation before/after</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="metrics-cfo" class="tab-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Current State</th>
+                                <th>Target (6 months)</th>
+                                <th>How to Measure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Spend Visibility</strong></td>
+                                <td>&lt;30% visible</td>
+                                <td>100% visible</td>
+                                <td>% of AI spend tracked in platform</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Forecast Accuracy</strong></td>
+                                <td>±50%</td>
+                                <td>±10%</td>
+                                <td>Variance between forecast and actual</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Time to Monthly Close</strong></td>
+                                <td>15-20 hours/month</td>
+                                <td>1-2 hours/month</td>
+                                <td>Finance team hours spent on monthly close</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ROI Data Completeness</strong></td>
+                                <td>0% of models measured</td>
+                                <td>100% of models measured</td>
+                                <td>% of models with ROI analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Optimization Savings Found</strong></td>
+                                <td>$0</td>
+                                <td>$40K+/month recurring</td>
+                                <td>Sum of identified consolidation opportunities</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Board Confidence</strong></td>
+                                <td>Low (guesses)</td>
+                                <td>High (data-backed)</td>
+                                <td>NPS survey of board on AI cost transparency</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="metrics-employee" class="tab-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Current State</th>
+                                <th>Target (6 months)</th>
+                                <th>How to Measure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Time to First Agent</strong></td>
+                                <td>Can't build (too hard)</td>
+                                <td>&lt;10 minutes</td>
+                                <td>Average time from open to first deployment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Adoption Rate</strong></td>
+                                <td>Low (friction high)</td>
+                                <td>60%+ of target teams</td>
+                                <td>% of teams with 1+ deployed agent</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Marketplace Usage</strong></td>
+                                <td>0% discovery</td>
+                                <td>40%+ of agents cloned</td>
+                                <td>% of agents created via clone vs. from scratch</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost Awareness</strong></td>
+                                <td>0% aware</td>
+                                <td>90%+ aware</td>
+                                <td>% of builders that switch to cheaper model options</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Duplicate Work Reduction</strong></td>
+                                <td>10% avoidable duplication</td>
+                                <td>&lt;2% duplication</td>
+                                <td>Survey: "Did you know someone already built this?"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Team Satisfaction</strong></td>
+                                <td>4/10</td>
+                                <td>8/10</td>
+                                <td>NPS survey of teams using platform</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 2-Year Roadmap -->
+            <section>
+                <h2>2-Year Product Roadmap</h2>
+
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                    Atlas is architected as three integrated phases. Each phase adds a new persona while reinforcing the previous one.
+                </p>
+
+                <div class="roadmap">
+                    <div class="roadmap-phases">
+                        <div class="phase phase-1">
+                            <h4>📌 Phase 1: AI Manager (Weeks 1-12 | Q2-Q3 2026)</h4>
+                            <p><strong>Goal:</strong> Land with AI Managers. Establish model governance + policy enforcement + RAG management foundation.</p>
+                            <p><strong>Target Customers:</strong> 3-5 early adopters. Deal size: $20-50K/year.</p>
+                            <p><strong>Key Features:</strong> Model Registry, Policy Engine, Violations Dashboard, RAG Management, Basic Analytics, Audit Trail.</p>
+                            <p><strong>Success Metric:</strong> AI Managers using platform 100% for model governance (vs. 0% on spreadsheets).</p>
+                        </div>
+
+                        <div class="phase phase-2">
+                            <h4>📌 Phase 2: CFO (Weeks 13-24 | Q4 2026 - Q1 2027)</h4>
+                            <p><strong>Goal:</strong> Expand from AI Manager to CFO. Unlock finance layer built on governance foundation.</p>
+                            <p><strong>Target Customers:</strong> 3-5 Phase 1 customers upsell to CFO. 5-10 new CFO direct sales. Deal size: $50-500K/year.</p>
+                            <p><strong>Key Features:</strong> Finance Dashboard, Model ROI Analytics, Spend Forecasting, Optimization Recommendations, Chargeback Engine.</p>
+                            <p><strong>Success Metric:</strong> CFOs see all AI spend (100% vs. 30% today). Forecast accuracy ±10% (vs. ±50%).</p>
+                        </div>
+
+                        <div class="phase phase-3">
+                            <h4>📌 Phase 3: Employee (Weeks 25+ | Q2 2027+)</h4>
+                            <p><strong>Goal:</strong> Drive end-user adoption. No-code agent builder + governance + marketplace.</p>
+                            <p><strong>Target Customers:</strong> Expand existing customers (AI Manager + CFO) to 100+ users per company. Usage-based pricing scales revenue.</p>
+                            <p><strong>Key Features:</strong> No-Code Agent Builder, Cost Transparency at Build Time, Agent Marketplace, Sharing + Governance, Collaboration.</p>
+                            <p><strong>Success Metric:</strong> 60%+ of target teams building agents in 10 minutes. Marketplace prevents 80%+ of duplicate work.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Year 1 (Q2 2026 - Q1 2027) Focus</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number">3-5</div>
+                        <div class="stat-label">AI Manager Customers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">5-10</div>
+                        <div class="stat-label">CFO Customers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">$500K-$1M</div>
+                        <div class="stat-label">ARR Target</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Market Segments</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Year 2 (Q2 2027+) Focus</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Total Customers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">End-Users</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">$5M+</div>
+                        <div class="stat-label">ARR Target</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Geographic Markets</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Go-to-Market Strategy -->
+            <section>
+                <h2>Go-to-Market Strategy</h2>
+
+                <h3>Phase 1: Land with AI Managers (Q2-Q3 2026)</h3>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">1</div>
+                        <div class="feature-content">
+                            <h4>Target Profile</h4>
+                            <p>ML platform teams, AI governance leads, responsible AI officers at VC-backed AI startups + mid-market + enterprises.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">2</div>
+                        <div class="feature-content">
+                            <h4>Sales Motion</h4>
+                            <p>Direct sales + community (AI subreddits, newsletters like Import AI). Focus: governance pain is acute.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">3</div>
+                        <div class="feature-content">
+                            <h4>Value Prop</h4>
+                            <p>"Reduce AI infrastructure costs 20-30% through optimization + eliminate rogue AI spend + governance without the complexity."</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">4</div>
+                        <div class="feature-content">
+                            <h4>Pricing</h4>
+                            <p>$500/month base + 10% of identified savings. Or $20-50K/year flat.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Phase 2: Expand to CFO (Q4 2026+)</h3>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">1</div>
+                        <div class="feature-content">
+                            <h4>Entry Point</h4>
+                            <p>Upsell from Phase 1 AI Manager customer via governance success. CFO hears "we now see all AI spend" from AI Manager.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">2</div>
+                        <div class="feature-content">
+                            <h4>Value Prop</h4>
+                            <p>"Single source of truth for AI spend across the company. Forecast, optimize, and measure ROI."</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">3</div>
+                        <div class="feature-content">
+                            <h4>Deal Size</h4>
+                            <p>$50K-500K/year depending on company AI spend.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">4</div>
+                        <div class="feature-content">
+                            <h4>Approach</h4>
+                            <p>Land with one persona (AI Manager), expand to next persona (CFO) via champion success story. Lock in.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Key Risks & Mitigations -->
+            <section>
+                <h2>Key Risks & Mitigations</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Risk</th>
+                            <th>Impact</th>
+                            <th>Mitigation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Regulatory Drift</strong><br/>EU AI Act or SEC rules change</td>
+                            <td>High</td>
+                            <td>Build governance framework that adapts. Monitor regulatory landscape. Customer advisory board.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LLM Provider Churn</strong><br/>OpenAI changes pricing/API</td>
+                            <td>Medium</td>
+                            <td>Thin integration layer. Partner with gateway providers (LiteLLM, Portkey). Multi-vendor by design.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Point Solutions Ship Faster</strong><br/>Competitors add features quicker</td>
+                            <td>Medium</td>
+                            <td>Focus on depth (best-in-class governance), not breadth. Be great at governance, not everything.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cloud Providers Compete</strong><br/>Google/AWS add features</td>
+                            <td>Medium</td>
+                            <td>Emphasize model-agnosticism and business-user focus. They'll always prioritize their own clouds.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sales Cycle is Long</strong><br/>Enterprises move slowly</td>
+                            <td>Low</td>
+                            <td>Start with AI Manager (less political). Once CFO sees ROI, expansion is easier. 6-month sales cycle is acceptable.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Conclusion -->
+            <section>
+                <h2>The Bet</h2>
+
+                <div style="background: white; padding: 2rem; border-radius: 8px; border-left: 4px solid #ff6b6b; margin: 2rem 0;">
+                    <p style="font-size: 1.1rem; line-height: 2; color: #333;">
+                        <strong>We're not trying to win FinOps.</strong> Holori has that.<br/>
+                        <strong>We're not trying to win no-code agents.</strong> Airtable/MindStudio have that.<br/>
+                        <strong>We're trying to win the unified platform</strong> that serves all three audiences, each with a better experience than specialists.
+                    </p>
+                </div>
+
+                <p style="font-size: 1rem; color: #666; line-height: 1.8;">
+                    The companies that will buy us are those drowning in fragmentation:
+                </p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>VC-Backed AI Startups</h3>
+                        <p>$50K-500K/month AI spend. No processes. Governance is chaotic. Ripe for unified solution.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Large Enterprises</h3>
+                        <p>$1M+/month AI spend. Uncontrolled adoption. Finance blindsided monthly. Desperate for control.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Mid-Market Regulated</h3>
+                        <p>Regulatory pressure (EU AI Act). Need governance. Need cost control. Prefer one vendor.</p>
+                    </div>
+                </div>
+
+                <p style="font-size: 1rem; color: #666; line-height: 1.8; margin-top: 2rem;">
+                    <strong>Success metric:</strong> Get one customer in each segment by Month 6. Prove the model. Expand.
+                </p>
+            </section>
+
+            <!-- Pricing Plans -->
+            <section>
+                <h2>Possible Pricing Plans</h2>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>AI Manager</h3>
+                        <p style="font-size: 1.25rem; font-weight: 700; color: #F26D5B; margin-bottom: 1rem;">$500/mo + 10% savings</p>
+                        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">Model registry, policy enforcement, RAG management, basic analytics.</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Up to 50 models</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ 10 governance policies</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Audit trail</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Support</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Enterprise</h3>
+                        <p style="font-size: 1.25rem; font-weight: 700; color: #F26D5B; margin-bottom: 1rem;">$5K-20K/mo + 5% savings</p>
+                        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">Everything in AI Manager + CFO reporting, custom integrations, SCIM/SAML.</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Unlimited models</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Finance dashboard</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ ROI analytics</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Priority support</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Custom</h3>
+                        <p style="font-size: 1.25rem; font-weight: 700; color: #F26D5B; margin-bottom: 1rem;">Negotiated</p>
+                        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">White-label, on-premises, custom SLA, dedicated success team.</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Full customization</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ On-premises option</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Custom integrations</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Dedicated team</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>On-Prem License Pack</h3>
+                        <p style="font-size: 1.25rem; font-weight: 700; color: #F26D5B; margin-bottom: 1rem;">$15K-50K upfront</p>
+                        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">Self-managed deployment for organizations with strict compliance and data residency requirements.</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Full product suite</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Self-hosted infrastructure</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Data residency control</li>
+                            <li style="padding: 0.5rem 0; color: #666;">✓ Annual maintenance & updates</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 2rem; border-radius: 8px; margin-top: 2rem; border-left: 4px solid #F26D5B;">
+                    <h4 style="color: #16213E; margin-bottom: 1rem;">Pricing Model Philosophy</h4>
+                    <p style="color: #666; line-height: 1.8;">
+                        <strong>Hybrid model aligns incentives:</strong> Base fee is reasonable to lower barrier to entry. Savings-based component means you win when customers win. Scales with customer value—larger spenders pay more. CFOs appreciate savings-based model because they trust it: you only make more money when they save money.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <div class="footer">
+            <p><strong>Atlas AI Hub - PM Case Study</strong></p>
+            <p>Market Research • User Validation • Product Strategy • Roadmap</p>
+            <p style="font-size: 0.9rem; margin-top: 1.5rem;">For more information, see the Obsidian vault research files</p>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 0;
+        const pages = document.querySelectorAll('.page');
+        const dots = document.querySelectorAll('.page-dot');
+
+        function showPage(pageNum) {
+            pages.forEach(page => page.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            if (pageNum >= 0 && pageNum < pages.length) {
+                pages[pageNum].classList.add('active');
+                dots[pageNum].classList.add('active');
+                currentPage = pageNum;
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function nextPage() {
+            showPage(currentPage + 1);
+        }
+
+        function previousPage() {
+            showPage(currentPage - 1);
+        }
+
+        function goToPage(pageNum) {
+            showPage(pageNum);
+        }
+
+        function switchTab(e, tabName) {
+            // Hide all content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            e.target.classList.add('active');
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'ArrowLeft') previousPage();
+        });
+    </script>
+</body>
+</html>

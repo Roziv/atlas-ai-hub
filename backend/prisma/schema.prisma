@@ -1,0 +1,422 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ===== Core Models =====
+
+model Organization {
+  id    String   @id @default(cuid())
+  name  String
+  slug  String   @unique
+  description String?
+  logoUrl String? @map("logo_url")
+  settings String @default("{}")
+
+  users User[]
+  models Model[]
+  policies Policy[]
+  violations Violation[]
+  ragResources RagResource[]
+  auditLogs AuditLog[]
+  workflows Workflow[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@map("organizations")
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  name String
+  avatarUrl String? @map("avatar_url")
+  role String @default("end_user") // ai_manager | cfo | end_user | admin
+
+  organizationId String @map("organization_id")
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  status String @default("active") // active | inactive | suspended
+  lastLoginAt DateTime? @map("last_login_at")
+
+  // Relations
+  createdModels Model[] @relation("ModelOwner")
+  createdPolicies Policy[] @relation("PolicyCreatedBy")
+  createdViolations Violation[] @relation("ViolationCreatedBy")
+  approvedViolations Violation[] @relation("ViolationApprovedBy")
+  auditLogs AuditLog[] @relation("AuditLogCreatedBy")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@index([role])
+  @@map("users")
+}
+
+model Model {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  name String
+  description String?
+  type String // fine-tuned | proprietary | external
+  status String @default("active") // active | inactive | retired | archived
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  ownerId String @map("owner_id")
+  owner User @relation("ModelOwner", fields: [ownerId], references: [id])
+
+  externalId String? @map("external_id") // For integrations (HF model ID, etc)
+  externalSource String? @map("external_source") // huggingface | mlflow | custom
+
+  metadata String @default("{}") // { "framework": "pytorch", "parameters": "7B", ... }
+  deploymentCount Int @default(0) @map("deployment_count")
+  lastPolicyCheckAt DateTime? @map("last_policy_check_at")
+
+  // Relations
+  violations Violation[]
+  ragDistributions RagDistribution[]
+  policyApplications PolicyApplication[]
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("models")
+}
+
+model Policy {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  name String
+  description String?
+  scope String // all_production | team_specific | model_specific
+  scopeValue String? @map("scope_value") // team_id or model_id if scope is specific
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  isTemplate Boolean @default(false) @map("is_template")
+  createdById String @map("created_by")
+  createdBy User @relation("PolicyCreatedBy", fields: [createdById], references: [id])
+
+  enforcementEnabled Boolean @default(true) @map("enforcement_enabled")
+  enforcementAutoResolve Boolean @default(false) @map("enforcement_auto_resolve")
+  requiredApprovers String @default("[]") @map("required_approvers") // ["chief_ai_officer", "security_lead"]
+
+  rules String @default("[]") // Policy rule definitions
+
+  // Relations
+  violations Violation[]
+  policyApplications PolicyApplication[]
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@index([createdById])
+  @@map("policies")
+}
+
+model PolicyApplication {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+
+  policyId String @map("policy_id")
+  policy Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  modelId String @map("model_id")
+  model Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  appliedAt DateTime @default(now()) @map("applied_at")
+
+  @@unique([policyId, modelId])
+  @@index([organizationId])
+  @@index([policyId])
+  @@index([modelId])
+  @@map("policy_applications")
+}
+
+model Violation {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  modelId String @map("model_id")
+  model Model @relation(fields: [modelId], references: [id])
+
+  policyId String @map("policy_id")
+  policy Policy @relation(fields: [policyId], references: [id])
+
+  severity String // critical | warning | info
+  status String @default("open") // open | submitted_for_approval | approved | remediated | dismissed
+
+  createdById String @map("created_by")
+  createdBy User @relation("ViolationCreatedBy", fields: [createdById], references: [id])
+
+  approvedById String? @map("approved_by")
+  approvedBy User? @relation("ViolationApprovedBy", fields: [approvedById], references: [id])
+
+  description String?
+  remediation String? // How it was resolved
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  resolvedAt DateTime? @map("resolved_at")
+
+  @@index([organizationId])
+  @@index([modelId])
+  @@index([policyId])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("violations")
+}
+
+model RagResource {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  name String
+  description String?
+  type String // document | knowledge_base | embedding_set
+
+  version String @default("1.0")
+  contentUrl String? @map("content_url") // S3 or other cloud storage URL
+
+  accessLevel String @default("read-only") // read-only | read-write
+  
+  createdById String? @map("created_by_id")
+  isGeneral Boolean @default(false) @map("is_general")
+
+  // Relations
+  distributions RagDistribution[]
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@index([type])
+  @@map("rag_resources")
+}
+
+model RagDistribution {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+
+  ragResourceId String @map("rag_resource_id")
+  ragResource RagResource @relation(fields: [ragResourceId], references: [id], onDelete: Cascade)
+
+  modelId String @map("model_id")
+  model Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  version String // rag_1234_v5
+  accessLevel String @default("read-only") @map("access_level")
+  expiresAt DateTime? @map("expires_at")
+
+  distributedAt DateTime @default(now()) @map("distributed_at")
+
+  @@unique([ragResourceId, modelId])
+  @@index([organizationId])
+  @@index([ragResourceId])
+  @@index([modelId])
+  @@map("rag_distributions")
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  action String // model_created, policy_updated, violation_remediated, etc
+  entityType String @map("entity_type") // Model, Policy, Violation, RagResource
+  entityId String? @map("entity_id")
+
+  userId String @map("user_id")
+  user User @relation("AuditLogCreatedBy", fields: [userId], references: [id])
+
+  details String @default("{}") // Additional context about the action
+
+  modelId String? @map("model_id")
+  model Model? @relation(fields: [modelId], references: [id])
+
+  policyId String? @map("policy_id")
+  policy Policy? @relation(fields: [policyId], references: [id])
+
+  ragResourceId String? @map("rag_resource_id")
+  ragResource RagResource? @relation(fields: [ragResourceId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ===== Phase 1B: CFO Features =====
+
+model SpendRecord {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  userId String? @map("user_id")
+  department String?
+  agentId String? @map("agent_id")
+
+  provider String // openai | anthropic | gemini | ollama
+  model String
+  amount Float // Calculated cost in USD
+  tokensInput Int @default(0) @map("tokens_input")
+  tokensOutput Int @default(0) @map("tokens_output")
+  
+  recordDate DateTime @default(now()) @map("record_date")
+
+  metadata String @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([provider])
+  @@index([recordDate])
+  @@index([department])
+  @@map("spend_records")
+}
+
+model Budget {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+
+  name String
+  department String? // null means organization-wide
+  monthlyLimit Float @map("monthly_limit")
+  alertThreshold Float @default(0.8) @map("alert_threshold") // Alert at 80%
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@map("budgets")
+}
+
+// ===== Phase 2: End User Builder =====
+
+model Agent {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  creatorId String? @map("creator_id")
+  creatorName String? @map("creator_name")
+
+  name String
+  description String?
+  category String @default("General") // e.g. HR, Sales, Dev
+  icon String @default("bot")
+  definition String @default("{}") // No-code agent definition
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  isPublished Boolean @default(false) @map("is_published")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([isPublished])
+  @@map("agents")
+}
+
+model Tool {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+
+  name String
+  description String?
+  type String // api | script | database | web
+  config String @default("{}") // JSON config for the tool
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@map("tools")
+}
+
+model AgentRun {
+  id String @id @default(cuid())
+  agentId String @map("agent_id")
+
+  status String // pending | running | completed | failed
+  result String? // Execution result
+
+  createdAt DateTime @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@index([agentId])
+  @@index([status])
+  @@map("agent_runs")
+}
+
+// ===== Phase 1D: Governance Workflows =====
+
+model Workflow {
+  id String @id @default(cuid())
+  organizationId String @map("organization_id")
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  name String
+  description String?
+  status String @default("active") // active | paused | draft
+  trigger String // model_deployment | violation_detected | schedule
+  
+  definition String @default("[]") // JSON array of steps/actions
+
+  lastRunAt DateTime? @map("last_run_at")
+  
+  runs WorkflowRun[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("workflows")
+}
+
+model WorkflowRun {
+  id String @id @default(cuid())
+  workflowId String @map("workflow_id")
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  status String // running | completed | failed
+  details String? // Execution details or error logs
+  
+  startedAt DateTime @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@index([workflowId])
+  @@index([status])
+  @@map("workflow_runs")
+}
