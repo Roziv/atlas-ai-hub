@@ -96,16 +96,40 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Start server
-const server = app.listen(PORT, () => {
-  logger.info(`✓ Atlas AI Hub Backend running on port ${PORT}`);
-});
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Run seed if database is empty
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
 
-// Keep-alive heartbeat for dev environment
-setInterval(() => {
-    // No-op to prevent process from exiting
-}, 1000 * 60 * 60); // 1 hour interval
+    const orgCount = await prisma.organization.count();
+    if (orgCount === 0) {
+      logger.info('Seeding database...');
+      // Import and run seed
+      const seed = (await import('../prisma/seed')).default;
+      await seed();
+      logger.info('Database seeded successfully');
+    }
 
-// Graceful shutdown
-process.on('SIGTERM', () => server.close());
-process.on('SIGINT', () => server.close());
+    await prisma.$disconnect();
+  } catch (error) {
+    logger.error('Failed to initialize database', { error: String(error) });
+    // Continue anyway - database might already exist
+  }
+
+  const server = app.listen(PORT, () => {
+    logger.info(`✓ Atlas AI Hub Backend running on port ${PORT}`);
+  });
+
+  // Keep-alive heartbeat for dev environment
+  setInterval(() => {
+      // No-op to prevent process from exiting
+  }, 1000 * 60 * 60); // 1 hour interval
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => server.close());
+  process.on('SIGINT', () => server.close());
+}
+
+startServer();
