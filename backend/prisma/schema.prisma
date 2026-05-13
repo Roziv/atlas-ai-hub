@@ -203,7 +203,7 @@ model RagResource {
   version String @default("1.0")
   contentUrl String? @map("content_url") // S3 or other cloud storage URL
 
-  accessLevel String @default("read-only") // read-only | read-write
+  accessLevel String @default("read-only") @map("access_level") // read-only | read-write
   
   createdById String? @map("created_by_id")
   isGeneral Boolean @default(false) @map("is_general")

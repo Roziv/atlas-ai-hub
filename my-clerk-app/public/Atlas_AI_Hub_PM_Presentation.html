@@ -46,7 +46,7 @@
         }
 
         .nav-logo img {
-            height: 40px;
+            height: 60px;
             width: auto;
         }
 
@@ -127,8 +127,8 @@
         }
 
         .hero-logo {
-            width: 220px;
-            height: 220px;
+            width: 320px;
+            height: 320px;
             margin: 0 auto 2rem;
             display: flex;
             align-items: center;
@@ -138,6 +138,76 @@
         .hero-logo img {
             width: 100%;
             height: auto;
+        }
+
+        .play-video-btn {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            padding: 0.75rem 2rem;
+        }
+
+        /* Video Modal */
+        .video-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .video-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #000;
+            border-radius: 8px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(0, 0, 0, 0.8);
         }
 
         .hero h1 {
@@ -601,7 +671,7 @@
     <!-- Navigation -->
     <div class="nav">
         <div class="nav-logo">
-            <img src="logo.png" alt="Atlas AI Hub Logo" />
+            <img src="atlas-logo.png" alt="Atlas AI Hub Logo" />
         </div>
         <div class="nav-buttons">
             <button class="btn btn-secondary" onclick="previousPage()">← Previous</button>
@@ -621,10 +691,13 @@
         <div class="hero">
             <div class="hero-content">
                 <div class="hero-logo">
-                    <img src="logo.png" alt="Atlas AI Hub Logo" />
+                    <img src="atlas-logo.png" alt="Atlas AI Hub Logo" />
                 </div>
                 <h1>Control Your AI <em>Enterprise</em></h1>
                 <p>Unified governance, cost control, and adoption tracking for AI Managers, CFOs, and Employees.</p>
+                <button class="btn btn-primary play-video-btn" onclick="openVideoModal()">
+                    ▶️ Watch Demo
+                </button>
             </div>
         </div>
 
@@ -781,7 +854,7 @@
                 <h2>Product Vision & Value Proposition</h2>
 
                 <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
-                    <strong>Vision:</strong> The unified platform that serves all three personas better than specialists.
+                    <strong>Vision:</strong> Unify, govern, and adopt AI through the entire organization.
                 </p>
 
                 <div class="journey-map">
@@ -825,7 +898,7 @@
                         </div>
                     </div>
 
-                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #10b981;">✓ Employee: "Build Fast, But Know the Cost"</h4>
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #10b981;">✓ Employee: "Build Fast, Unified and Clear"</h4>
                     <div class="journey-steps">
                         <div class="journey-step solution">
                             <h4>No-Code Builder</h4>
@@ -1684,6 +1757,47 @@
             if (e.key === 'ArrowRight') nextPage();
             if (e.key === 'ArrowLeft') previousPage();
         });
+
+        // Video Modal Functions
+        function openVideoModal() {
+            const modal = document.getElementById('videoModal');
+            modal.classList.add('active');
+            const video = modal.querySelector('video');
+            video.play();
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            modal.classList.remove('active');
+            const video = modal.querySelector('video');
+            video.pause();
+            video.currentTime = 0;
+        }
+
+        // Close modal when clicking outside the video
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVideoModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVideoModal();
+            }
+        });
     </script>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="video-modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeVideoModal()">&times;</button>
+            <video controls>
+                <source src="demo-video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
 </body>
 </html>
