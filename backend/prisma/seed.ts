@@ -259,11 +259,16 @@ async function main() {
   console.log('✅ Seeding complete.');
 }
 
-main()
-  .catch((e: any) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+export default main;
+
+// Run seed if executed directly
+if (require.main === module) {
+  main()
+    .catch((e: any) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
