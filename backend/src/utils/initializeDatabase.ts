@@ -306,15 +306,39 @@ const SQL_STATEMENTS = [
  * Executes each SQL statement individually to avoid transaction issues
  */
 export async function initializeDatabase() {
+  // Check if DATABASE_URL is set
+  if (!process.env.DATABASE_URL) {
+    logger.error('❌ DATABASE_URL environment variable is not set');
+    logger.error('Cannot initialize database without connection string');
+    return false;
+  }
+
+  logger.info('DATABASE_URL is set, attempting connection...');
+
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    idleTimeoutMillis: 5000,
+  });
+
+  // Handle pool errors
+  pool.on('error', (error) => {
+    logger.error('Unexpected error on pool:', { error: error.message });
   });
 
   try {
     logger.info('Initializing PostgreSQL database schema...');
 
-    const client = await pool.connect();
-    logger.info('✓ Connected to PostgreSQL');
+    let client;
+    try {
+      client = await pool.connect();
+      logger.info('✓ Connected to PostgreSQL');
+    } catch (connectError: any) {
+      logger.error('❌ Failed to connect to PostgreSQL:', {
+        error: connectError?.message || String(connectError),
+        code: connectError?.code,
+      });
+      return false;
+    }
 
     try {
       // Check if tables already exist
