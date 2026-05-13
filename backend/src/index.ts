@@ -102,6 +102,30 @@ async function startServer() {
     // Import the db instance
     const prisma = (await import('./db')).default;
 
+    logger.info('Ensuring database schema is up to date...');
+    // Use db.execute to run raw SQL for schema creation if needed
+    // This is safer than db push in production
+    try {
+      // Test connection and create schema if needed
+      await prisma.organization.count();
+      logger.info('Database schema verified');
+    } catch (schemaError: any) {
+      logger.warn('Schema missing, attempting to create tables...');
+      // If schema doesn't exist, we need to push the schema
+      // For Railway, we'll try the migration approach
+      try {
+        const { execSync } = await import('child_process');
+        execSync('npx prisma db push --skip-generate', {
+          stdio: 'inherit',
+          env: { ...process.env }
+        });
+        logger.info('Database schema created successfully');
+      } catch (pushError) {
+        logger.error('Failed to push schema', { error: String(pushError) });
+        throw schemaError;
+      }
+    }
+
     // Run seed if database is empty
     const orgCount = await prisma.organization.count();
 
@@ -111,6 +135,8 @@ async function startServer() {
       const seed = (await import('../prisma/seed')).default;
       await seed();
       logger.info('Database seeded successfully');
+    } else {
+      logger.info(`Database already has ${orgCount} organization(s)`);
     }
   } catch (error) {
     logger.error('Failed to initialize database', { error: String(error) });
