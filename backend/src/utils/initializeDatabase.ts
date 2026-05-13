@@ -314,9 +314,11 @@ export async function initializeDatabase() {
     logger.info('Initializing PostgreSQL database schema...');
 
     const client = await pool.connect();
+    logger.info('✓ Connected to PostgreSQL');
 
     try {
       // Check if tables already exist
+      logger.info('Checking if schema exists...');
       const result = await client.query(
         `SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'organizations')`
       );
@@ -326,20 +328,24 @@ export async function initializeDatabase() {
         return true;
       }
 
-      logger.info('Creating database tables...');
+      logger.info(`Creating database tables... (${SQL_STATEMENTS.length} statements)`);
 
       // Execute each SQL statement individually
+      let count = 0;
       for (const sql of SQL_STATEMENTS) {
+        count++;
         try {
           await client.query(sql);
         } catch (error: any) {
           // Ignore "already exists" errors
-          if (!error.message.includes('already exists')) {
-            logger.error(`Failed to execute SQL: ${sql.substring(0, 50)}...`, {
-              error: error.message,
-            });
-            throw error;
+          if (error.message && error.message.includes('already exists')) {
+            logger.info(`Statement ${count}: Skipped (already exists)`);
+            continue;
           }
+          logger.error(`Statement ${count} failed: ${sql.substring(0, 80)}...`, {
+            error: error.message || String(error),
+          });
+          throw error;
         }
       }
 
@@ -347,11 +353,22 @@ export async function initializeDatabase() {
       return true;
     } finally {
       client.release();
+      logger.info('Client released');
     }
-  } catch (error) {
-    logger.error('Failed to initialize database:', { error: String(error).substring(0, 300) });
-    throw error;
+  } catch (error: any) {
+    const errorString = error?.message || String(error);
+    logger.error('Failed to initialize database:', {
+      error: errorString.substring(0, 500),
+      type: error?.name || typeof error
+    });
+    // Don't rethrow - let server start anyway
+    return false;
   } finally {
-    await pool.end();
+    try {
+      await pool.end();
+      logger.info('Pool closed');
+    } catch (e) {
+      logger.error('Error closing pool:', { error: String(e) });
+    }
   }
 }
