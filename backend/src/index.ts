@@ -99,11 +99,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Initialize database and start server
 async function startServer() {
   try {
-    // Run seed if database is empty
-    const prismaForCheck = await import('@prisma/client').then(m => new m.PrismaClient());
+    // Import the db instance
+    const prisma = (await import('./db')).default;
 
-    const orgCount = await prismaForCheck.organization.count();
-    await prismaForCheck.$disconnect();
+    // Run seed if database is empty
+    const orgCount = await prisma.organization.count();
 
     if (orgCount === 0) {
       logger.info('Seeding database...');
