@@ -99,53 +99,29 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Initialize database and start server
 async function startServer() {
   try {
+    // Step 1: Initialize database schema
     logger.info('🔧 Initializing database...');
+    const { initializeDatabase } = await import('./utils/initializeDatabase');
+    await initializeDatabase();
 
-    // Step 1: Run migrations if needed
-    try {
-      logger.info('Running database migrations...');
-      const { execSync } = await import('child_process');
-      execSync('npx prisma migrate deploy', {
-        cwd: process.cwd(),
-        stdio: 'inherit'
-      });
-      logger.info('✓ Migrations completed successfully');
-    } catch (migrationError: any) {
-      const errorMsg = String(migrationError);
-      // If migrations already applied, this is fine
-      if (errorMsg.includes('already applied') || errorMsg.includes('up to date')) {
-        logger.info('✓ Migrations already up to date');
-      } else {
-        logger.warn('⚠️ Migration warning (may be normal):', errorMsg.substring(0, 200));
-        // Continue anyway - database might be in a valid state
-      }
-    }
-
-    // Step 2: Import and test the prisma client
-    logger.info('Connecting to database...');
+    // Step 2: Test connection and seed if needed
+    logger.info('Verifying database...');
     const prisma = (await import('./db')).default;
 
-    // Step 3: Check database and seed if needed
-    try {
-      const orgCount = await prisma.organization.count();
-      logger.info(`✓ Database connected. Found ${orgCount} organization(s)`);
+    const orgCount = await prisma.organization.count();
+    logger.info(`✓ Database verified. Found ${orgCount} organization(s)`);
 
-      if (orgCount === 0) {
-        logger.info('🌱 Seeding database with initial data...');
-        const seed = (await import('../prisma/seed')).default;
-        await seed();
-        logger.info('✓ Database seeded successfully');
-      }
-    } catch (dbError: any) {
-      logger.error('❌ Database query failed:', String(dbError));
-      throw dbError;
+    if (orgCount === 0) {
+      logger.info('🌱 Seeding database with initial data...');
+      const seed = (await import('../prisma/seed')).default;
+      await seed();
+      logger.info('✓ Database seeded successfully');
     }
   } catch (error) {
     logger.error('❌ Database initialization failed:', {
       error: String(error).substring(0, 300)
     });
-    logger.error('\n💡 To fix this manually, run: npm run db:init\n');
-    // Continue anyway - might recover on retry
+    // Don't exit - server will still start, may be recoverable
   }
 
   const server = app.listen(PORT, () => {
