@@ -8,6 +8,7 @@
     "build": "echo 'Build step - compiling TypeScript'",
     "db:push": "prisma db push --skip-generate",
     "db:seed": "node -r ts-node/register prisma/seed.ts",
+    "db:init": "node -r ts-node/register scripts/init-db.ts",
     "db:setup": "npm run db:push && npm run db:seed",
     "start": "node -r ts-node/register src/index.ts",
     "seed": "node -r ts-node/register prisma/seed.ts",
@@ -27,6 +28,7 @@
     "express": "^5.2.1",
     "morgan": "^1.10.1",
     "pg": "^8.20.0",
+    "prisma": "^7.8.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "winston": "^3.19.0",
@@ -38,8 +40,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
-    "nodemon": "^3.1.14",
-    "prisma": "^7.8.0"
+    "nodemon": "^3.1.14"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

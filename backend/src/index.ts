@@ -99,48 +99,53 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Initialize database and start server
 async function startServer() {
   try {
-    // Import the db instance
-    const prisma = (await import('./db')).default;
+    logger.info('🔧 Initializing database...');
 
-    logger.info('Ensuring database schema is up to date...');
-    // Use db.execute to run raw SQL for schema creation if needed
-    // This is safer than db push in production
+    // Step 1: Run migrations if needed
     try {
-      // Test connection and create schema if needed
-      await prisma.organization.count();
-      logger.info('Database schema verified');
-    } catch (schemaError: any) {
-      logger.warn('Schema missing, attempting to create tables...');
-      // If schema doesn't exist, we need to push the schema
-      // For Railway, we'll try the migration approach
-      try {
-        const { execSync } = await import('child_process');
-        execSync('npx prisma db push --skip-generate', {
-          stdio: 'inherit',
-          env: { ...process.env }
-        });
-        logger.info('Database schema created successfully');
-      } catch (pushError) {
-        logger.error('Failed to push schema', { error: String(pushError) });
-        throw schemaError;
+      logger.info('Running database migrations...');
+      const { execSync } = await import('child_process');
+      execSync('npx prisma migrate deploy', {
+        cwd: process.cwd(),
+        stdio: 'inherit'
+      });
+      logger.info('✓ Migrations completed successfully');
+    } catch (migrationError: any) {
+      const errorMsg = String(migrationError);
+      // If migrations already applied, this is fine
+      if (errorMsg.includes('already applied') || errorMsg.includes('up to date')) {
+        logger.info('✓ Migrations already up to date');
+      } else {
+        logger.warn('⚠️ Migration warning (may be normal):', errorMsg.substring(0, 200));
+        // Continue anyway - database might be in a valid state
       }
     }
 
-    // Run seed if database is empty
-    const orgCount = await prisma.organization.count();
+    // Step 2: Import and test the prisma client
+    logger.info('Connecting to database...');
+    const prisma = (await import('./db')).default;
 
-    if (orgCount === 0) {
-      logger.info('Seeding database...');
-      // Import and run seed
-      const seed = (await import('../prisma/seed')).default;
-      await seed();
-      logger.info('Database seeded successfully');
-    } else {
-      logger.info(`Database already has ${orgCount} organization(s)`);
+    // Step 3: Check database and seed if needed
+    try {
+      const orgCount = await prisma.organization.count();
+      logger.info(`✓ Database connected. Found ${orgCount} organization(s)`);
+
+      if (orgCount === 0) {
+        logger.info('🌱 Seeding database with initial data...');
+        const seed = (await import('../prisma/seed')).default;
+        await seed();
+        logger.info('✓ Database seeded successfully');
+      }
+    } catch (dbError: any) {
+      logger.error('❌ Database query failed:', String(dbError));
+      throw dbError;
     }
   } catch (error) {
-    logger.error('Failed to initialize database', { error: String(error) });
-    // Continue anyway - database might already exist
+    logger.error('❌ Database initialization failed:', {
+      error: String(error).substring(0, 300)
+    });
+    logger.error('\n💡 To fix this manually, run: npm run db:init\n');
+    // Continue anyway - might recover on retry
   }
 
   const server = app.listen(PORT, () => {
