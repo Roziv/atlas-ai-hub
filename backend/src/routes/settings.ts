@@ -3,6 +3,16 @@ import prisma from '../db';
 
 const router = Router();
 
+// Test endpoint - returns hardcoded data to verify route works
+router.get('/test', (req, res) => {
+  console.log('[SETTINGS] GET /test called');
+  res.json({
+    success: true,
+    message: 'Settings route is working',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Helper function to get organization - use first org as fallback
 async function getOrganization() {
   try {
