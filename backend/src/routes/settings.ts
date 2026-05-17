@@ -6,18 +6,24 @@ const router = Router();
 // GET global AI settings
 router.get('/ai', async (req, res) => {
   try {
+    const orgId = (req as any).orgId;
+    console.log(`[SETTINGS] GET /ai - orgId: ${orgId}`);
+
     let org = await prisma.organization.findUnique({
-      where: { id: (req as any).orgId }
+      where: { id: orgId }
     });
 
     if (!org) {
-      org = await prisma.organization.findUnique({
-        where: { slug: 'acme-corp' }
-      });
+      console.log(`[SETTINGS] Organization not found with id ${orgId}, searching all organizations`);
+      org = await prisma.organization.findFirst();
     }
 
-    if (!org) return res.status(404).json({ success: false, error: 'Org not found' });
+    if (!org) {
+      console.error('[SETTINGS] No organizations found in database');
+      return res.status(404).json({ success: false, error: 'Org not found' });
+    }
 
+    console.log(`[SETTINGS] Found organization: ${org.id}`);
     const settings = JSON.parse(org.settings || '{}');
     const defaultAi = {
       providers: {
@@ -41,6 +47,7 @@ router.get('/ai', async (req, res) => {
     };
     res.json({ success: true, data: settings.ai || defaultAi });
   } catch (err: any) {
+    console.error('[SETTINGS ERROR]', err.message, err.stack);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -49,18 +56,22 @@ router.get('/ai', async (req, res) => {
 router.post('/ai', async (req, res) => {
   try {
     const { aiSettings } = req.body;
-    
+    const orgId = (req as any).orgId;
+    console.log(`[SETTINGS] POST /ai - orgId: ${orgId}`);
+
     let org = await prisma.organization.findUnique({
-      where: { id: (req as any).orgId }
+      where: { id: orgId }
     });
 
     if (!org) {
-      org = await prisma.organization.findUnique({
-        where: { slug: 'acme-corp' }
-      });
+      console.log(`[SETTINGS] Organization not found with id ${orgId}, searching all organizations`);
+      org = await prisma.organization.findFirst();
     }
 
-    if (!org) return res.status(404).json({ success: false, error: 'Org not found' });
+    if (!org) {
+      console.error('[SETTINGS] No organizations found in database');
+      return res.status(404).json({ success: false, error: 'Org not found' });
+    }
 
     const currentSettings = JSON.parse(org.settings || '{}');
     const updatedSettings = { ...currentSettings, ai: aiSettings };
@@ -70,8 +81,10 @@ router.post('/ai', async (req, res) => {
       data: { settings: JSON.stringify(updatedSettings) }
     });
 
+    console.log(`[SETTINGS] Successfully updated settings for org: ${org.id}`);
     res.json({ success: true });
   } catch (err: any) {
+    console.error('[SETTINGS ERROR]', err.message, err.stack);
     res.status(500).json({ success: false, error: err.message });
   }
 });
