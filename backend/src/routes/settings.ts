@@ -82,6 +82,7 @@ router.post('/ai', async (req, res) => {
   try {
     const { aiSettings } = req.body;
     console.log('[SETTINGS] POST /ai called');
+    console.log('[SETTINGS] Request body:', JSON.stringify(req.body).substring(0, 500));
 
     const org = await getOrganization();
     if (!org) {
@@ -90,6 +91,11 @@ router.post('/ai', async (req, res) => {
     }
 
     console.log(`[SETTINGS] Using organization: ${org.id}`);
+
+    if (!aiSettings) {
+      console.error('[SETTINGS] aiSettings is missing from request body');
+      return res.status(400).json({ success: false, error: 'aiSettings is required' });
+    }
 
     let currentSettings = {};
     try {
@@ -100,17 +106,21 @@ router.post('/ai', async (req, res) => {
     }
 
     const updatedSettings = { ...currentSettings, ai: aiSettings };
+    const settingsJson = JSON.stringify(updatedSettings);
+    console.log(`[SETTINGS] Settings to save (${settingsJson.length} chars):`, settingsJson.substring(0, 500));
 
     await prisma.organization.update({
       where: { id: org.id },
-      data: { settings: JSON.stringify(updatedSettings) }
+      data: { settings: settingsJson }
     });
 
     console.log(`[SETTINGS] Successfully updated settings for org: ${org.id}`);
     res.json({ success: true });
   } catch (err: any) {
-    console.error('[SETTINGS ERROR] POST /ai:', err.message, err.stack);
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[SETTINGS ERROR] POST /ai:', err.message);
+    console.error('[SETTINGS ERROR] Stack:', err.stack);
+    console.error('[SETTINGS ERROR] Full error:', err);
+    res.status(500).json({ success: false, error: err.message, details: process.env.NODE_ENV === 'development' ? err.stack : undefined });
   }
 });
 
