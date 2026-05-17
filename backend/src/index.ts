@@ -64,13 +64,16 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Public API routes (no authentication required)
+app.use('/api/settings', settingsRouter);
+
 // Protected routes (Authentication)
 app.use('/api', authMiddleware);
 
 // Organization isolation (Authorization)
 app.use('/api', orgAccessMiddleware);
 
-// Routes
+// Routes (protected by auth middleware)
 app.use('/api/models', modelsRouter);
 app.use('/api/policies', policiesRouter);
 app.use('/api/violations', violationsRouter);
@@ -81,7 +84,7 @@ app.use('/api/roi', roiRouter);
 app.use('/api/forecast', forecastRouter);
 app.use('/api/workflows', workflowsRouter);
 app.use('/api/chat', chatRouter);
-app.use('/api/settings', settingsRouter);
+// Settings is already mounted before auth middleware (public route)
 app.use('/api/users', usersRouter);
 app.use('/api/tools', toolsRouter);
 app.use('/api/agents', agentsRouter);
