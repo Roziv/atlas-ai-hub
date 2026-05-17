@@ -149,7 +149,9 @@ router.post('/', async (req, res) => {
 
     let org = await prisma.organization.findUnique({ where: { id: (req as any).orgId } });
     if (!org) {
-      org = await prisma.organization.findUnique({ where: { slug: 'acme-corp' } });
+      org = await prisma.organization.findFirst({
+        orderBy: { createdAt: 'desc' }
+      });
     }
     if (!org) throw new Error("Organization not found");
 
