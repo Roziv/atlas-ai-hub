@@ -29,10 +29,12 @@ const PORT = process.env.PORT || 3001;
 
 // CORS Configuration
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',').map(origin => origin.trim());
+const allowAllOrigins = allowedOrigins.includes('*');
+
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowAllOrigins || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: origin ${origin} is not allowed`));
