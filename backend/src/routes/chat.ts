@@ -7,6 +7,16 @@ import { createClerkClient } from '@clerk/backend';
 const router = Router();
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
+// Test endpoint for chat route
+router.get('/test', (req, res) => {
+  console.log('[CHAT] GET /test called');
+  res.json({
+    success: true,
+    message: 'Chat route is working',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // --- Budget Enforcement ---
 async function checkBudget(orgId: string, department: string) {
     if (!department) return { allowed: true };
@@ -138,6 +148,11 @@ router.post('/', async (req, res) => {
   const { messages, agentConfig, userId } = req.body;
 
   try {
+    console.log('[CHAT] POST / called');
+    console.log('[CHAT] Request body keys:', Object.keys(req.body));
+    console.log('[CHAT] Messages:', messages?.length || 'none');
+    console.log('[CHAT] AgentConfig:', agentConfig?.name || 'none');
+
     // 1. Context
     let department = 'Default';
     if (userId) {
@@ -147,13 +162,16 @@ router.post('/', async (req, res) => {
       } catch (e) {}
     }
 
+    console.log('[CHAT] Fetching organization...');
     let org = await prisma.organization.findUnique({ where: { id: (req as any).orgId } });
     if (!org) {
+      console.log('[CHAT] Org not found by ID, using findFirst fallback');
       org = await prisma.organization.findFirst({
         orderBy: { createdAt: 'desc' }
       });
     }
     if (!org) throw new Error("Organization not found");
+    console.log('[CHAT] Organization found:', org.id);
 
     // 2. Routing
     const settings = JSON.parse(org.settings || '{}');
