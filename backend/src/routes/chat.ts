@@ -264,13 +264,23 @@ router.post('/', async (req, res) => {
         outputContent = json.content[0].text;
     } else if (provider === 'ollama' || provider === 'ollama_cloud') {
         const baseUrl = (providerConfig.baseUrl || 'http://localhost:11434').trim();
-        const response = await fetch(`${baseUrl}/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: modelId, messages: [{ role: 'system', content: systemPrompt }, ...messages], stream: false })
-        });
-        const json: any = await response.json();
-        outputContent = json.message.content;
+        console.log(`[CHAT] Calling ${provider} at ${baseUrl}`);
+        try {
+            const response = await fetch(`${baseUrl}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: modelId, messages: [{ role: 'system', content: systemPrompt }, ...messages], stream: false })
+            });
+            if (!response.ok) {
+                console.error(`[CHAT] Ollama responded with ${response.status}: ${await response.text()}`);
+                throw new Error(`Ollama service returned ${response.status}`);
+            }
+            const json: any = await response.json();
+            outputContent = json.message.content;
+        } catch (ollErr: any) {
+            console.error(`[CHAT] Ollama connection failed:`, ollErr.message);
+            throw new Error(`Cannot reach ${provider} at ${baseUrl}. Ensure the service is running and accessible. Error: ${ollErr.message}`);
+        }
     }
 
     recordUsage({ orgId: org.id, userId, dept: department, provider, model: modelId, inputTokens: 100, outputTokens: 200 }).catch(() => {});
